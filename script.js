@@ -12,6 +12,12 @@ let snakeDirection = "right";
 let keyPress = "";
 let highScore = 0;
 
+let storedHighScore = window.localStorage.getItem('snakeHighScore');
+if (storedHighScore != null) {
+  highScore = parseInt(storedHighScore);
+  highScoreDiv.innerHTML = `High Score: ${highScore}`;
+}
+
 // Set the canvas size to 400x400
 canvas.width = 400;
 canvas.height = 400;
@@ -135,8 +141,9 @@ function gameLoop() {
     let score = snake.length - snakeStartLength;
     if (score > highScore) {
       highScore = score;
+      window.localStorage.setItem('snakeHighScore', highScore);
+      highScoreDiv.innerHTML = `High Score: ${highScore}`;
     }
-    highScoreDiv.innerHTML = `High Score: ${highScore}`;
     scoreDiv.innerHTML = `Score: ${score}`;
 
     setTimeout(gameLoop, baseInterval);
