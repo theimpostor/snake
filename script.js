@@ -11,6 +11,24 @@ const baseInterval = 100;
 let snakeDirection = "right";
 let keyPress = "";
 let highScore = 0;
+const hasLocalStorage = storageAvailable('localStorage')
+if (hasLocalStorage) {
+  try {
+    const highScoreString = window.localStorage.getItem('snakeHighScore');
+    if (highScoreString != null) {
+      console.log('loaded high score from storage:', highScoreString);
+      highScore = parseInt(highScoreString)
+    } else {
+      console.log('loaded high score from storage, was NULL');
+    }
+  } catch (e) {
+    console.log('Exception reading storage')
+    console.log(e.message)
+    console.log(e.stack)
+  }
+} else {
+  console.log('localStorage not supported');
+}
 
 // Set the canvas size to 400x400
 canvas.width = 400;
@@ -132,15 +150,28 @@ function gameLoop() {
     // Draw the snake and food on the canvas
     drawSnake();
     drawFood();
-    let score = snake.length - snakeStartLength;
-    if (score > highScore) {
-      highScore = score;
-    }
-    highScoreDiv.innerHTML = `High Score: ${highScore}`;
-    scoreDiv.innerHTML = `Score: ${score}`;
+    updateScore();
 
     setTimeout(gameLoop, baseInterval);
   }
+}
+
+function updateScore() {
+  let score = snake.length - snakeStartLength;
+  if (score > highScore) {
+    highScore = score;
+    if (hasLocalStorage) {
+      try {
+        console.log('saving high score');
+        window.localStorage.setItem('snakeHighScore', highScore.toString())
+      } catch (e) {
+        console.error('Exception setting storage');
+        console.error(e);
+      }
+    }
+    highScoreDiv.innerHTML = `High Score: ${highScore}`;
+  }
+  scoreDiv.innerHTML = `Score: ${score}`;
 }
 
 function start() {
@@ -161,4 +192,31 @@ function start() {
 
   // Set the game loop to run every 100ms
   setTimeout(gameLoop, baseInterval);
+}
+
+function storageAvailable(type) {
+  let storage;
+  try {
+    storage = window[type];
+    const x = "__storage_test__";
+    storage.setItem(x, x);
+    storage.removeItem(x);
+    return true;
+  } catch (e) {
+    return (
+      e instanceof DOMException &&
+      // everything except Firefox
+      (e.code === 22 ||
+        // Firefox
+        e.code === 1014 ||
+        // test name field too, because code might not be present
+        // everything except Firefox
+        e.name === "QuotaExceededError" ||
+        // Firefox
+        e.name === "NS_ERROR_DOM_QUOTA_REACHED") &&
+      // acknowledge QuotaExceededError only if there's something already stored
+      storage &&
+      storage.length !== 0
+    );
+  }
 }
