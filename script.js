@@ -18,6 +18,7 @@ if (hasLocalStorage) {
     if (highScoreString != null) {
       console.log('loaded high score from storage:', highScoreString);
       highScore = parseInt(highScoreString)
+      highScoreDiv.innerHTML = `High Score: ${highScore}`;
     } else {
       console.log('loaded high score from storage, was NULL');
     }
@@ -169,8 +170,8 @@ function updateScore() {
         console.error(e);
       }
     }
-    highScoreDiv.innerHTML = `High Score: ${highScore}`;
   }
+  highScoreDiv.innerHTML = `High Score: ${highScore}`;
   scoreDiv.innerHTML = `Score: ${score}`;
 }
 
